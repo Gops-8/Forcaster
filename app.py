@@ -72,12 +72,12 @@ def predict():
     
 def get_stock_price(stockname,numdays):
     name = stockname
-    print("Predicting for Stock",name)
+#     print("Predicting for Stock",name)
     curr_date=date.today()
     starting_date=curr_date-timedelta(1000)
     ending_date=curr_date
     
-    print("Training from",starting_date)
+#     print("Training from",starting_date)
 
     data = get_history(symbol=name, start=starting_date, end=ending_date)           ##INSERT
     data = data.reset_index()
@@ -118,7 +118,7 @@ def get_stock_price(stockname,numdays):
 
     
 if __name__=='__main__':    
-    # print(predict('LUPIN',30))
+    
     app.run(host='0.0.0.0',port=8000)
     
 

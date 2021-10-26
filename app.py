@@ -20,7 +20,7 @@ import math
 from fbprophet import Prophet
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 # plt.style.use('fivethirtyeight')
-from fbprophet.plot import plot_plotly, plot_components_plotly
+# from fbprophet.plot import plot_plotly, plot_components_plotly
 from fbprophet.diagnostics import cross_validation
 from datetime import date, datetime, time, timedelta
 from dateutil.relativedelta import relativedelta

@@ -10,21 +10,22 @@ import flasgger
 from flasgger import Swagger
 from sklearn.metrics import mean_squared_error
 from math import sqrt
-
+from nsepy import get_history
 import datetime as dt
 from datetime import date
 import calendar
 import warnings
 warnings.simplefilter('ignore')
 import math
+from holidays import WEEKEND, HolidayBase
+from dateutil.easter import easter
+from dateutil.relativedelta import relativedelta as rd
 from fbprophet import Prophet
 from sklearn.metrics import mean_squared_error, mean_absolute_error
-# plt.style.use('fivethirtyeight')
-# from fbprophet.plot import plot_plotly, plot_components_plotly
+from fbprophet.plot import plot_plotly, plot_components_plotly
 from fbprophet.diagnostics import cross_validation
 from datetime import date, datetime, time, timedelta
 from dateutil.relativedelta import relativedelta
-import itertools
 from fbprophet.diagnostics import performance_metrics
 import json
 
@@ -35,7 +36,7 @@ Swagger(app)
 
 @app.route('/')
 def welcome():
-    return "Welcome To Forcaster.. Refer to APIDOCS to make API calls"
+    return "Forcaster HomePage"
 
 
 @app.route('/predict',methods=["Get"])
@@ -61,30 +62,25 @@ def predict():
     stockname=request.args.get("stockname")
     numdays=request.args.get("numdays")    
     
-    valstocks=['BRITANNIA','HDFC','INFY','LUPIN','SBIN','TATAMOTORS']    
-    if stockname in valstocks:
-
-        result=get_stock_price(stockname,numdays)    
-        data_dict = dict()
-        for col in result.columns:                
-            data_dict[col] = result[col].values.tolist()
+    
+    result=get_stock_price(stockname,numdays)    
+    data_dict = dict()
+    for col in result.columns:                
+        data_dict[col] = result[col].values.tolist()
         
-        return jsonify(data_dict)
-    else:
-        msg='ERROR : Enter Valid StockName'
-        return msg 
+    return jsonify(data_dict)
+
     
 def get_stock_price(stockname,numdays):
     name = stockname
-
+    print("Predicting for Stock",name)
     curr_date=date.today()
     starting_date=curr_date-timedelta(1000)
     ending_date=curr_date
     
+    print("Training from",starting_date)
 
-
-    # data = get_history(symbol=name, start=starting_date, end=ending_date)           ##INSERT
-    data = pd.read_csv(stockname+'.csv')
+    data = get_history(symbol=name, start=starting_date, end=ending_date)           ##INSERT
     data = data.reset_index()
     data['Date'] = pd.to_datetime(data['Date'], errors='coerce')
     value_on_prediction='Close'
@@ -105,6 +101,8 @@ def get_stock_price(stockname,numdays):
     df_p = performance_metrics(df_cv, rolling_window=1)
     rmse.append(df_p['rmse'][0])
 
+    #     tuning_results = pd.DataFrame(all_params)
+    #     tuning_results['rmse'] = rmses
     print('RMSE= ',rmse)
 
     #Prediction of Future Data
@@ -120,5 +118,8 @@ def get_stock_price(stockname,numdays):
     return forecasting_values
 
     
-if __name__=='__main__':        
+if __name__=='__main__':    
+    # print(predict('LUPIN',30))
     app.run(host='0.0.0.0',port=8000)
+    
+
